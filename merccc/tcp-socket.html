@@ -19,9 +19,10 @@
 <p class="indent0">5. <a href="#local">Local Socket API</a></p>
 <h2 id="intro">1. Introduction</h2>
 <p><strong>merccc</strong> (version &gt;= 0.9.4) has a TCP socket interface that external programs can connect to to get information about the current state of the competition and to optionally be informed of state changes. The socket interface is used by passing the <span class="mono">'-p &lt;port&gt;'</span> option to the program. If a loopback port is desired, use the <span class="mono">'--localport &lt;port&gt;'</span> option (version &gt;= 0.9.5 only). If initialization is successful, <strong>merccc</strong> will start listening to the port and serve a line-oriented socket stream with <span class="mono">LF</span> character (ASCII hex <span class="mono">0A</span>) as line delimiter. This interface can handle multiple clients.</p>
+<p>Upon connecting, the client will be sent a header line with the version of the server and its capabilities, e.g. for version 1.3.0: <span class="mono">merccc-1.3.0</span> for non-local port and <span class="mono">merccc-1.3.0 local</span> for a loopback socket. The server will print "&gt; " prompt to the client to indicate that it is ready to receive a command (unless it is in monitor mode or if the prompt is disabled).</p>
 <p>In addition to querying the state of the program, the loopback port in version &gt;= 1.3.0  also supports <a href="#local">commands that can change the state of the program</a>. These commands can be used to extend the functionality of the program without modifying <strong>merccc</strong> itself.</p>
 <h2 id="general">2. General Commands</h2>
-<p><strong>merccc</strong> will print "&gt; " to the client to indicate that it is ready to receive a command (unless if it is in monitor mode or if the prompt is turned off). The following is a list of commands for the socket interface:</p>
+<p>The following is a list of commands for the socket interface:</p>
 <table style="width: 100%;">
 <tr><th>Command</th><th>Description</th></tr>
 <tr><td><strong>config</strong></td><td>get the configuration file contents</td></tr>
