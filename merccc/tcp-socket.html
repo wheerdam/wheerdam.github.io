@@ -11,7 +11,16 @@
 <div class="container">
 <h1><img alt="[*]" src="./images/merccc-logo.png" height="50" style="background-color: black; vertical-align: middle"> merccc</h1>
 <p class="centered">TCP Socket Interface</p>
+<h2>Table of Contents</h2>
+<p class="indent0">1. <a href="#intro">Introduction</a></p>
+<p class="indent0">2. <a href="#general">General Commands</a></p>
+<p class="indent0">3. <a href="#return">Command Replies</a></p>
+<p class="indent0">4. <a href="#monitor">Monitor Mode</a></p>
+<p class="indent0">5. <a href="#local">Local Socket API</a></p>
+<h2 id="intro">1. Introduction</h2>
 <p><strong>merccc</strong> (version &gt;= 0.9.4) has a TCP socket interface that external programs can connect to to get information about the current state of the competition and to optionally be informed of state changes. The socket interface is used by passing the <span class="mono">'-p &lt;port&gt;'</span> option to the program. If a loopback port is desired, use the <span class="mono">'--localport &lt;port&gt;'</span> option (version &gt;= 0.9.5 only). If initialization is successful, <strong>merccc</strong> will start listening to the port and serve a line-oriented socket stream with <span class="mono">LF</span> character (ASCII hex <span class="mono">0A</span>) as line delimiter. This interface can handle multiple clients.</p>
+<p>In addition to querying the state of the program, the loopback port in version &gt;= 1.3.0  also supports <a href="#local">commands that can change the state of the program</a>. These commands can be used to extend the functionality of the program without modifying <strong>merccc</strong> itself.</p>
+<h2 id="general">2. General Commands</h2>
 <p><strong>merccc</strong> will print "&gt; " to the client to indicate that it is ready to receive a command (unless if it is in monitor mode or if the prompt is turned off). The following is a list of commands for the socket interface:</p>
 <table style="width: 100%;">
 <tr><th>Command</th><th>Description</th></tr>
@@ -26,7 +35,10 @@
 <tr><td><strong>monitor</strong></td><td>go into monitor mode to be notified of changes</td></tr>
 <tr><td><strong>break</strong> (monitor mode only)</td><td>break away from monitor mode</td></tr>
 <tr><td><strong>promptoff</strong></td><td>turn off prompt (&gt;=0.9.9)</td></tr>
+<tr><td><strong>resolution</strong></td><td>get display window resolution (&gt;=1.3.0)</td></tr>
 </table>
+<h2 id="return">3. Command Replies</h2>
+<p>Starting from version 0.9.9, <strong>merccc</strong> will send a <span class="mono">DONE</span> message on its own line after sending a multi-line response and before sending the prompt. This does not apply to the <span class="mono">q</span>, <span class="mono">state</span>, <span class="mono">hash</span>, <span class="mono">monitor</span>, <span class="mono">break</span>, <span class="mono">promptoff</span>, and <span class="mono">resolution</span> commands. <span class="mono">promptoff</span> will return <span class="mono">PROMPT OFF</span> when invoked and the prompt will never be sent for the remainder of the connection.</p>
 <p>The following is the format of a line of the returned data for each command:</p>
 <p class="mono"><strong>config:</strong><br />
 lines of text from the config file</p>
@@ -40,11 +52,16 @@ HEADER [col_header_name]</p>
 DATA [data entry following the order as given by the header]</p>
 <p class="mono"><strong>classification:</strong><br />
 CLASSIFICATION [rank], [team#], [team_name], [team_institution], [best_score]</p>
+<p>The following commands only return a single line:</p>
 <p class="mono"><strong>state:</strong><br />
 STATE [state] or<br />
 STATE [state] [team#] [run#] [time_left_ms] [paused] [redflagged]<br />
 ... where state is -1 for IDLE, 0 for SETUP, 1 for RUN, and 2 for POST-RUN</p>
-<p>Starting from version 0.9.9, <strong>merccc</strong> will send a <span class="mono">DONE</span> message on its own line after sending a multi-line response and before sending the prompt. This does not apply to the <span class="mono">q</span>, <span class="mono">state</span>, <span class="mono">hash</span>, <span class="mono">monitor</span>, <span class="mono">break</span>, and <span class="mono">promptoff</span> commands. <span class="mono">promptoff</span> will return <span class="mono">PROMPT OFF</span> when invoked and the prompt will never be sent for the remainder of the connection.</p>
+<p class="mono"><strong>resolution:</strong><br />
+RESOLUTION [width]x[height]<br />
+... width and height will be returned as '-1x-1' if the display is hidden</p>
+<p>The <span class="mono">resolution</span> command is only available in version &gt;= 1.3.0.</p>
+<h2 id="monitor">4. Monitor Mode</h2>
 <p>When the "monitor" command is invoked, <strong>merccc</strong> will reply with <span class="mono">MONITOR</span> and stop acknowledging commands other than the "break" command. While in this mode, <strong>merccc</strong> will emit a line of data to the client signifying an event that has occured. The following is a list of events that the client will be notified of when they occur:</p>
 <p class="mono"><strong>STATE_CHANGE_IDLE</strong><br />the control program has gone into an idle state</p>
 <p class="mono"><strong>STATE_CHANGE_SETUP</strong> [team#] <span style="color: red;"><strong>modified in 0.9.9, see below</strong></span><br />the setup phase for the specified team has started</p>
@@ -71,6 +88,8 @@ starting from version 0.9.9 this event also specifies the number of attempts and
 <p class="mono"><strong>DISPLAY_HIDE</strong><br />display was made hidden</p>
 <p class="mono"><strong>DISPLAY_SHOW</strong><br />display was made visible</p>
 <p class="mono"><strong>DISPLAY_RANK_START</strong> [starting_rank]<br />operator has set the first rank to display in classification mode</p>
+<h2 id="local">5. Local Socket API</h2>
+<p>Under Development</p>
 <hr />
 <p><a href="./index.html" class="plain">◄ Go Back</a></p>
 </div>
