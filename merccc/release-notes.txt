@@ -1,3 +1,9 @@
+1.3.0
+- external control api using local tcp socket interface
+- client mode connection gui
+- headless server mode
+- image overlay support using local socket api
+
 1.2.1
 - patch: null pointer error on best score due to divide-by-zero
 
