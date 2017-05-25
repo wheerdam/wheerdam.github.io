@@ -73,23 +73,23 @@ RESOLUTION [width]x[height]<br />
 <p>When the "monitor" command is invoked, <strong>merccc</strong> will reply with <span class="mono">MONITOR</span> and stop acknowledging commands other than the "break" command. While in this mode, <strong>merccc</strong> will emit a line of data to the client signifying an event that has occured. The following is a list of events that the client will be notified of when they occur:</p>
 <table class="apitable" style="width: 100%;">
 <tr><td class="a"><strong>STATE_CHANGE_IDLE</strong></td></tr><tr><td class="b">the control program has gone into an idle state</td></tr>
-<tr><td class="a"><strong>STATE_CHANGE_SETUP</strong> [team#] [attempts] [setup_duration] [window_duration]</td></tr><tr><td class="b">
-durations are in seconds</td></tr>
+<tr><td class="a"><strong>STATE_CHANGE_SETUP</strong> [team#] [max_attempts] [setup_duration] [window_duration]</td></tr><tr><td class="b">
+a scoring session for the team with <span class="mono">team#</span> ID number has started and the program is now in setup state. Durations are in seconds</td></tr>
 <tr><td class="a"><strong>STATE_CHANGE_RUN</strong></td></tr><tr><td class="b">the run phase has started</td></tr>
 <tr><td class="a"><strong>STATE_CHANGE_POSTRUN</strong></td></tr><tr><td class="b">the run phase has ended, but a score may still be committed</td></tr>
-<tr><td class="a"><strong>SCORE_CHANGE</strong> [fieldKey] [field#] [new_value]</td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_PAUSED</strong></td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_RESUMED</strong></td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_REDFLAGGED</strong></td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_GREENFLAGGED</strong></td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_ATTEMPT_COMMITTED</strong> [team#] [run#] [score]</td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_ATTEMPT_DISCARDED</strong> [team#] [run#]</td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>SESSION_TIME_ADDED</strong> [signed time_secs]</td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>DATA_CLEARED</strong></td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>DATA_IMPORTED</strong></td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>DATA_RECORD_EXPUNGED</strong> [team#] [score#]</td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>DATA_CHANGED</strong> [team#] [score#] [fieldKey] [new_value]</td></tr><tr><td class="b"></td></tr>
-<tr><td class="a"><strong>DATA_ADDED</strong> [team#] [score#]</td></tr><tr><td class="b">A new score has been added for the team outside a scoring session</td></tr>
+<tr><td class="a"><strong>SCORE_CHANGE</strong> [fieldKey] [field#] [new_value]</td></tr><tr><td class="b">a score field has been changed in a scoring session. <span class="mono">fieldKey</span> is specified in the fields section of the configuration file (left-hand identifier). <span class="mono">field#</span> is the order of the score field in the fields section</td></tr>
+<tr><td class="a"><strong>SESSION_PAUSED</strong></td></tr><tr><td class="b">the scoring session timer was paused. This event may occur during setup or run states</td></tr>
+<tr><td class="a"><strong>SESSION_RESUMED</strong></td></tr><tr><td class="b">the scoring session timer was resumed after being paused</td></tr>
+<tr><td class="a"><strong>SESSION_REDFLAGGED</strong></td></tr><tr><td class="b">the scoring session was "red flagged". The meaning of the red flag is up to interpretation for the particular competition</td></tr>
+<tr><td class="a"><strong>SESSION_GREENFLAGGED</strong></td></tr><tr><td class="b">the red flag state has ended</td></tr>
+<tr><td class="a"><strong>SESSION_ATTEMPT_COMMITTED</strong> [team#] [run#] [score]</td></tr><tr><td class="b">the current active scored run has been committed to the database. <span class="mono">team#</span> is the team number of the active team and <span class="mono">run#</span> is the run number of the current scoring session that the score belongs to</td></tr>
+<tr><td class="a"><strong>SESSION_ATTEMPT_DISCARDED</strong> [team#] [run#]</td></tr><tr><td class="b">the current team has just discarded its scored run, no new data is committed to the database</td></tr>
+<tr><td class="a"><strong>SESSION_TIME_ADDED</strong> [signed time_secs]</td></tr><tr><td class="b">time has been added during either setup or run states</td></tr>
+<tr><td class="a"><strong>DATA_CLEARED</strong></td></tr><tr><td class="b">all scoring data from the database has been cleared</td></tr>
+<tr><td class="a"><strong>DATA_IMPORTED</strong></td></tr><tr><td class="b">a previously saved scoring data has been loaded into the database</td></tr>
+<tr><td class="a"><strong>DATA_RECORD_EXPUNGED</strong> [team#] [score#]</td></tr><tr><td class="b">a score entry for a particular team has been deleted</td></tr>
+<tr><td class="a"><strong>DATA_CHANGED</strong> [team#] [score#] [fieldKey] [new_value]</td></tr><tr><td class="b">a score entry in the database has been modified</td></tr>
+<tr><td class="a"><strong>DATA_ADDED</strong> [team#] [score#]</td></tr><tr><td class="b">a new score entry has been added for the team outside a scoring session</td></tr>
 <tr><td class="a"><strong>TEAM_PRE_SELECT</strong> [team#]</td></tr><tr><td class="b">team currently selected by the operator to run next</td></tr>
 <tr><td class="a"><strong>DISPLAY_MODE_CHANGE</strong> [mode]</td></tr><tr><td class="b">display mode changed (0 for logo and time, 1 for run status, 2 for classification)</td></tr>
 <tr><td class="a"><strong>DISPLAY_HIDE</strong></td></tr><tr><td class="b">display was made hidden</td></tr>
@@ -117,6 +117,8 @@ durations are in seconds</td></tr>
 <tr><td class="b">skip the setup period. Running this command outside of the setup state will have no effect</td></tr>
 <tr><td class="a"><strong>change-active-score-field</strong> [fieldKey] [value]</td></tr>
 <tr><td class="b">change the value of a score field specified by fieldKey during a scoring session (run and post-run states)</td></tr>
+<tr><td class="a"><strong>get-current-score</strong></td></tr>
+<tr><td class="b">get the current (uncommitted) score. The server will return with the following format:<br /><span class="mono">CURRENT RUN=[run#] FIELD1=[value]...FIELDX=[value]</td></tr>
 <tr><td class="a"><strong>commit-score</strong></td></tr>
 <tr><td class="b">commit the current score to the database, start next run or end the run state if max attempts have been reached</td></tr>
 <tr><td class="a"><strong>discard-score</strong></td></tr>
