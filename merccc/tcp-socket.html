@@ -19,20 +19,21 @@
 <p class="indent0">3. <a href="#return">Command Replies</a></p>
 <p class="indent0">4. <a href="#monitor">Monitor Mode</a></p>
 <p class="indent0">5. <a href="#local">Local Socket Interface</a></p>
+<p class="indent0">6. <a href="#diff">Protocol Version Differences</a></p>
 <h2 id="intro">1. Introduction</h2>
-<p><strong>merccc</strong> (version &gt;= 0.9.4) has a TCP socket interface that external programs can connect to to get information about the current state of the competition and to optionally be informed of state changes. The socket interface is used by passing the <span class="mono">'-p &lt;port&gt;'</span> option to the program. If a loopback port is desired, use the <span class="mono">'--localport &lt;port&gt;'</span> option (version &gt;= 0.9.5 only). If initialization is successful, <strong>merccc</strong> will start listening to the port and serve a line-oriented socket stream with <span class="mono">LF</span> character (ASCII hex <span class="mono">0A</span>) as line delimiter. This interface can handle multiple clients.</p>
+<p><strong>merccc</strong> has a TCP socket interface that external programs can connect to to get information about the current state of the competition and to optionally be informed of state changes. The socket interface is used by passing the <span class="mono">'-p &lt;port&gt;'</span> option to the program. If a loopback port is desired, use the <span class="mono">'--localport &lt;port&gt;'</span> option. If initialization is successful, <strong>merccc</strong> will start listening to the port and serve a line-oriented socket stream with <span class="mono">LF</span> character (ASCII hex <span class="mono">0A</span>) as line delimiter. This interface can handle multiple clients.</p>
 <p>Upon connecting, the client will be sent a header line with the version of the server and its capabilities, e.g. for version 1.3.0: <span class="mono">merccc-1.3.0</span> for non-local port and <span class="mono">merccc-1.3.0 local</span> for a loopback socket. The server will print "&gt; " prompt (without new line) to the client to indicate that it is ready to receive a command (unless it is in monitor mode or if the prompt is disabled).</p>
 <p>A program such as <strong>netcat</strong> can be used to interact with the server through the console.</p>
 <h3 id="intro-program">1.1 Interfacing with the Socket Interface</h3>
-<p>To programmatically interface with <strong>merccc</strong> through the TCP socket, it is recommended to turn off the prompt to ease the parsing of the messages from the server. Upon connecting, the client program will need to read the header line and then send <span class="mono">promptoff</span> to turn off the prompt. After the server received this command, the next line from the server will be <span class="mono">&gt; PROMPT OFF</span> in a single line because the prompt does not end with a new line character <span class="mono">LF</span>. The client can flush this line and begin interfacing with the <strong>merccc</strong> server with the commands and monitor mode described in the rest of this document without having to deal with the prompt.</p>
+<p>To programmatically interface with <strong>merccc</strong> through the TCP socket, it is recommended to turn off the prompt to ease parsing of messages from the server. Upon connecting, the client program will need to read the header line and then send <span class="mono">promptoff</span> to turn off the prompt. After the server received this command, the next line from the server will be <span class="mono">&gt; PROMPT OFF</span> in a single line because the prompt does not end with a new line character <span class="mono">LF</span>. The client can flush this line and begin interfacing with the <strong>merccc</strong> server with the commands and monitor mode described in the rest of this document without having to deal with the prompt.</p>
 <h3 id="intro-extended">1.2 Extended Socket Interface (version &gt;= 1.3.0)</h3>
-<p>In addition to querying the state of the program, the loopback port in version &gt;= 1.3.0  also supports <a href="#local">commands that can change the state of the program</a>. These commands can be used to extend the functionality of the program without modifying <strong>merccc</strong> itself.</p>
+<p>In addition to querying the state of the program, the loopback port also supports <a href="#local">commands that can change the state of the program</a>. These commands can be used to extend the functionality of the program without modifying <strong>merccc</strong> itself.</p>
 <h2 id="general">2. General Commands</h2>
-<p>The following is a list of commands for the socket interface:</p>
+<p>The following is a list of commands for the socket interface (local and otherwise):</p>
 <table style="width: 100%;">
 <tr><th>Command</th><th>Description</th></tr>
 <tr><td><strong>config</strong></td><td>get the configuration file contents</td></tr>
-<tr><td><strong>hash</strong></td><td>get 32-bit configuration hash (&gt;=0.9.9)</td></tr>
+<tr><td><strong>hash</strong></td><td>get 32-bit configuration hash</td></tr>
 <tr><td><strong>teams</strong></td><td>get the list of teams</td></tr>
 <tr><td><strong>header</strong></td><td>get scoring data header</td></tr>
 <tr><td><strong>data</strong></td><td>get recorded scoring data, if any</td></tr>
@@ -41,12 +42,12 @@
 <tr><td><strong>state</strong></td><td>get current state of the scoring software</td></tr>
 <tr><td><strong>monitor</strong></td><td>go into monitor mode to be notified of changes</td></tr>
 <tr><td><strong>break</strong> (monitor mode only)</td><td>break away from monitor mode</td></tr>
-<tr><td><strong>promptoff</strong></td><td>turn off prompt (&gt;=0.9.9)</td></tr>
-<tr><td><strong>resolution</strong></td><td>get display window resolution (&gt;=1.3.0)</td></tr>
+<tr><td><strong>promptoff</strong></td><td>turn off prompt</td></tr>
+<tr><td><strong>resolution</strong></td><td>get display window resolution</td></tr>
 </table>
 <h2 id="return">3. Command Replies</h2>
-<p>Starting from version 0.9.9, <strong>merccc</strong> will send a <span class="mono">DONE</span> message on its own line after sending a multi-line response and before sending the prompt. This does not apply to the <span class="mono">q</span>, <span class="mono">state</span>, <span class="mono">hash</span>, <span class="mono">monitor</span>, <span class="mono">break</span>, <span class="mono">promptoff</span>, and <span class="mono">resolution</span> commands. <span class="mono">promptoff</span> will return <span class="mono">PROMPT OFF</span> when invoked and the prompt will never be sent for the remainder of the connection.</p>
-<p>Starting from version 1.3.0, an <span class="mono">ERROR</span> message will be sent if the client transmitted an invalid command.</p>
+<p><strong>merccc</strong> will send a <span class="mono">DONE</span> message on its own line after sending a multi-line response and before sending the prompt. This does not apply to the <span class="mono">q</span>, <span class="mono">state</span>, <span class="mono">hash</span>, <span class="mono">monitor</span>, <span class="mono">break</span>, <span class="mono">promptoff</span>, and <span class="mono">resolution</span> commands. <span class="mono">promptoff</span> will return <span class="mono">PROMPT OFF</span> when invoked and the prompt will never be sent for the remainder of the connection.</p>
+<p>An <span class="mono">ERROR</span> message will be sent if the client transmitted an invalid command.</p>
 <p>The following is the format of a line of the returned data for each command:</p>
 <p class="mono"><strong>config:</strong><br />
 lines of text from the config file</p>
@@ -68,11 +69,11 @@ STATE [state] [team#] [run#] [time_left_ms] [paused] [redflagged]<br />
 <p class="mono"><strong>resolution:</strong><br />
 RESOLUTION [width]x[height]<br />
 ... width and height will be returned as '-1x-1' if the display is hidden</p>
-<p>The <span class="mono">resolution</span> command is only available in version &gt;= 1.3.0.</p>
 <h2 id="monitor">4. Monitor Mode</h2>
 <p>When the "monitor" command is invoked, <strong>merccc</strong> will reply with <span class="mono">MONITOR</span> and stop acknowledging commands other than the "break" command. While in this mode, <strong>merccc</strong> will emit a line of data to the client signifying an event that has occured. The following is a list of events that the client will be notified of when they occur:</p>
 <p class="mono"><strong>STATE_CHANGE_IDLE</strong><br />the control program has gone into an idle state</p>
-<p class="mono"><strong>STATE_CHANGE_SETUP</strong> [team#] <span style="color: red;"><strong>modified in 0.9.9, see below</strong></span><br />the setup phase for the specified team has started</p>
+<p class="mono"><strong>STATE_CHANGE_SETUP</strong> [team#] [attempts] [setup_duration] [window_duration]<br />
+durations are in seconds</p>
 <p class="mono"><strong>STATE_CHANGE_RUN</strong><br />the run phase has started</p>
 <p class="mono"><strong>STATE_CHANGE_POSTRUN</strong><br />the run phase has ended, but a score may still be committed</p>
 <p class="mono"><strong>SCORE_CHANGE</strong> [fieldKey] [field#] [new_value]</p>
@@ -87,9 +88,6 @@ RESOLUTION [width]x[height]<br />
 <p class="mono"><strong>DATA_IMPORTED</strong></p>
 <p class="mono"><strong>DATA_RECORD_EXPUNGED</strong> [team#] [score#]</p>
 <p class="mono"><strong>DATA_CHANGED</strong> [team#] [score#] [fieldKey] [new_value]</p>
-<p>Events that were added / <span style="color: red;">modified</span> in version 0.9.9:</p>
-<p class="mono"><strong><span style="color: red;">STATE_CHANGE_SETUP</span></strong> [team#] [attempts] [setup_duration] [window_duration]<br />
-starting from version 0.9.9 this event also specifies the number of attempts and durations (in seconds)</p>
 <p class="mono"><strong>DATA_ADDED</strong> [team#] [score#]<br />A new score has been added for the team outside a scoring session</p>
 <p class="mono"><strong>TEAM_PRE_SELECT</strong> [team#]<br />team currently selected by the operator to run next</p>
 <p class="mono"><strong>DISPLAY_MODE_CHANGE</strong> [mode]<br />display mode changed (0 for logo and time, 1 for run status, 2 for classification)</p>
@@ -97,7 +95,53 @@ starting from version 0.9.9 this event also specifies the number of attempts and
 <p class="mono"><strong>DISPLAY_SHOW</strong><br />display was made visible</p>
 <p class="mono"><strong>DISPLAY_RANK_START</strong> [starting_rank]<br />operator has set the first rank to display in classification mode</p>
 <h2 id="local">5. Local Socket Interface</h2>
-<p>Under Development</p>
+<p>The following commands are only available using the local loopback socket interface. Unless otherwise noted, the commands will send <span class="mono">OK</span> if there was no error, and <span class="mono">ERROR</span> followed by a reason if an error occured during execution of the command. These responses will be on a single line.</p>
+<table class="apitable" style="width: 100%;">
+<tr><td class="a"><strong>add&#8209;score</strong> [teamID] [values...]</td></tr>
+<tr><td class="b">add a score for the specified team. The values for the score fields are in the order specified in the configuration file and header command</td></tr>
+<tr><td class="a"><strong>delete&#8209;score</strong> [teamID] [scoreID]</td></tr>
+<tr><td class="b">delete a score of the specified team. scoreID can be found using the 'data' command in the column after the team number and name (Score# from 'header')</td></tr>
+<tr><td class="a"><strong>clear&#8209;data</strong></td></tr>
+<tr><td class="b">clear all scored runs. Dangerous</td></tr>
+<tr><td class="a"><strong>save&#8209;data</strong> [file]</td></tr>
+<tr><td class="b">save scoring data to the specified file</td></tr>
+<tr><td class="a"><strong>load&#8209;data</strong> [file]</td></tr>
+<tr><td class="b">load scoring data from the specified file. Existing scoring data will not be deleted</td></tr>
+<tr><td class="a"><strong>start&#8209;scoring&#8209;session</strong> [teamID] [attempts] [setup_window_ms] [run_window_ms]</td></tr>
+<tr><td class="b">start a scoring session for the specified team. The server must be in the idle state</td></tr>
+<tr><td class="a"><strong>end&#8209;scoring&#8209;session</strong></td></tr>
+<tr><td class="b">end the current scoring session. Uncommitted scored runs will be lost</td></tr>
+<tr><td class="a"><strong>skip&#8209;setup</strong></td></tr>
+<tr><td class="b">skip the setup period. Running this command outside of the setup state will have no effect</td></tr>
+<tr><td class="a"><strong>change&#8209;active&#8209;score&#8209;field</strong> [fieldKey] [value]</td></tr>
+<tr><td class="b">change the value of a score field specified by fieldKey during a scoring session (run and post-run states)</td></tr>
+<tr><td class="a"><strong>commit&#8209;score</strong></td></tr>
+<tr><td class="b">commit the current score to the database, start next run or end the run state if max attempts have been reached</td></tr>
+<tr><td class="a"><strong>discard&#8209;score</strong></td></tr>
+<tr><td class="b">discard the current score, start next run or end the run state if max attempts have been reached</td></tr>
+<tr><td class="a"><strong>pause</strong></td></tr>
+<tr><td class="b">pause the timer if in the setup or run states</td></tr>
+<tr><td class="a"><strong>resume</strong></td></tr>
+<tr><td class="b">resume the timer if in the setup or run states</td></tr>
+<tr><td class="a"><strong>redflag</strong></td></tr>
+<tr><td class="b">raise the red flag state if in the setup or run states</td></tr>
+<tr><td class="a"><strong>greenflag</strong></td></tr>
+<tr><td class="b">cancel the red flag state if in the setup or run states</td></tr>
+<tr><td class="a"><strong>trigger&#8209;display&#8209;change</strong> [mode]</td></tr>
+<tr><td class="b">trigger a display mode change event (for display clients that are connected to the server)</td></tr>
+<tr><td class="a"><strong>trigger&#8209;display&#8209;rank&#8209;start</strong> [start_rank]</td></tr>
+<tr><td class="b">trigger a display rank start event (for display clients that are connected to the server)</td></tr>
+<tr><td class="a"><strong>current&#8209;directory</strong></td></tr>
+<tr><td class="b">get current working directory</td></tr>
+<tr><td class="a"><strong>change&#8209;directory</strong> [path]</td></tr>
+<tr><td class="b">change current working directory</td></tr>
+</table>
+<h2 id="diff">6. Protocol Version Differences</h2>
+<p>0.9.4: the TCP socket interface is included.</p>
+<p>0.9.5: the local loopback interface is included.</p>
+<p>0.9.9: <span class="mono">DONE</span> message after multi-line response, updated monitor events, added <span class="mono">hash</span> and <span class="mono">promptoff</span> commands</p>
+<p>1.3.0: <span class="mono">resolution</span> command and extended local socket interface</p>
+<p>
 <hr />
 <p><a href="./index.html" class="plain">◄ Go Back</a></p>
 </div>
