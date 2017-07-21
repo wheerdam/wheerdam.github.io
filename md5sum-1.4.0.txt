@@ -1,0 +1,3 @@
+c45d12da6d0373afb22665b7c23fbdf0  merccc-1.4.0.deb
+2a3015bd8c10afb3da1037301be43a45  merccc-1.4.0.exe
+df05d8103160b5ead0bc0e3902334da3  merccc-1.4.0.jar
