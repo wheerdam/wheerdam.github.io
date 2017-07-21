@@ -1,7 +1,9 @@
 1.4.0
 - DNF tiebreaker is now a float value
+- competition criteria system to denote teams that are eligible for positions and classification rules (optional)
 - the control frame now shows the current active score to the operator
-- the operator can now assign the current uncommitted active score as a DNF tiebreaker value
+- fix recently discovered displayframe classification view bug (every 10th position is not shown!)
+- teams are shown in the same order as in the config file in scoring control tab
 
 1.3.1
 - fix issue with resources downloading on client mode (issue #5)
