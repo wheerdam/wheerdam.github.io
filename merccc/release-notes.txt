@@ -1,3 +1,7 @@
+1.4.1
+- fix +1/undo add score parse error (issue #8)
+- merccc will now reject duplicate team IDs in the configuration file during initialization and exit (issue #9)
+
 1.4.0
 - DNF tiebreaker is now a float value
 - competition criteria system to denote teams that are eligible for positions and classification rules (optional)
