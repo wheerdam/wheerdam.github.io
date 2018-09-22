@@ -1,3 +1,8 @@
+1.4.2
+- fixed annotations data save/load. now teams can have criteria annotations saved into csv without having a score
+- fixed tiebreakers2 data load bug- import will fail if all teams have at least a score and tiebreaks2 line is empty
+- 'Set Flags' button in classification tab is disabled if config file does not use classification/champion criteria
+
 1.4.1
 - fix +1/undo add score parse error (issue #8)
 - merccc will now reject duplicate team IDs in the configuration file during initialization and exit (issue #9)
