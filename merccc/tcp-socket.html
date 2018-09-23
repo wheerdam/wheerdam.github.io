@@ -20,6 +20,7 @@
 <p class="indent0">4. <a href="#monitor">Monitor Mode</a></p>
 <p class="indent0">5. <a href="#local">Local Socket Interface</a></p>
 <p class="indent0">Appendix 1. <a href="#diff">Protocol Version Differences</a></p>
+<p class="indent0">Appendix 2. <a href="#expose">Expose Localhost-only Port to the Network</a></p>
 <h2 id="intro">1. Introduction</h2>
 <p><strong>merccc</strong> has a TCP socket interface that external programs can connect to to get information about the current state of the competition and to optionally be informed of state changes. The socket interface is used by passing the <span class="mono">'-p &lt;port&gt;'</span> option to the program. If a loopback port is desired, use the <span class="mono">'--localport &lt;port&gt;'</span> option. If initialization is successful, <strong>merccc</strong> will start listening to the port and serve a line-oriented socket stream with <span class="mono">LF</span> character (ASCII hex <span class="mono">0A</span>) as line delimiter. This interface can handle multiple clients.</p>
 <p>Upon connecting, the client will be sent a header line with the version of the server and its capabilities, e.g. for version 1.3.0: <span class="mono">merccc-1.3.0</span> for non-local port and <span class="mono">merccc-1.3.0 local</span> for a loopback socket. The server will print "&gt; " prompt (without new line) to the client to indicate that it is ready to receive a command (unless it is in monitor mode or if the prompt is disabled).</p>
@@ -151,7 +152,21 @@ a scoring session for the team with <span class="mono">team#</span> ID number ha
 <p>0.9.9: <span class="mono">DONE</span> message after multi-line response, updated monitor events, added <span class="mono">hash</span> and <span class="mono">promptoff</span> commands</p>
 <p>1.3.0: <span class="mono">resolution</span> command and extended local socket interface. Added <span class="mono">OK</span> and <span class="mono">ERROR</span> responses to commands. Server will always use <span class="mono">LF</span> as the line delimiter even if it is running on Windows</p>
 <p>1.4.3: <span class="mono">annotations</span> command added. <span class="mono">data</span> no longer returns annotations on the last column as in 1.4.0 to 1.4.2</p>
-<p>
+<h2 id="expose">Appendix 2. Expose Localhost-only Port to the Network</h2>
+<p><strong>merccc</strong> will only listen to the localhost network <span class="mono">127.0.0.1</span> if the <span class="mono">--localport</span> option is used. But if you trust the local network and would like to execute the localhost-only commands from another computer in the network, you can use the program <span class="mono">socat</span> to forward a public port to the local only port in Unix-like systems, and you can use <span class="mono">portproxy</span> in Windows</p>
+<h3>socat</h3>
+<p>To listen to port 19005 and open a connection to <strong>merccc</strong> localhost-only port 19001, you can run the following command:</p>
+<p class="mono">socat tcp-listen:19005,fork,reuseaddr tcp-connect:127.0.0.1:19001</p>
+<p>Point the client program to the IP address of the computer hosting <strong>merccc</strong> server and port 19005 to open the connection. The client program will be able to run the commands specified in section 5. Terminate the program to disable the port forwarding.</p>
+<h3>Windows</h3>
+<p>In Windows systems, <span class="mono">portproxy</span> can be used to forward a public port, e.g. run the following command in a command prompt with administrator privilege:</p>
+<p class="mono">netsh interface portproxy add v4tov4 19005 127.0.0.1 connectport=19001</p>
+<p>To disable the proxy, run the following command:</p>
+<p class="mono">netsh interface portproxy delete v4tov4 19005</p>
+<p>Note that the IP Helper service must be running and the IPv6 option must be installed for your network adapter for this feature to work. Also, you will need to allow incoming TCP connections to the port 19005 in the Advanced Firewall settings, e.g.:</p>
+<p class="mono">netsh advfirewall firewall add rule name="Open Port 19005" dir=in action=allow protocol=TCP localport=19005</p>
+<p>Run the following command to delete the firewall rule:</p>
+<p class="mono">netsh advfirewall firewall delete rule name="Open Port 19005"</p> 
 <hr />
 <p><a href="./index.html" class="plain">◄ Go Back</a></p>
 </div>
