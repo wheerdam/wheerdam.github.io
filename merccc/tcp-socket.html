@@ -159,11 +159,11 @@ a scoring session for the team with <span class="mono">team#</span> ID number ha
 <p class="mono">socat tcp-listen:19005,fork,reuseaddr tcp-connect:127.0.0.1:19001</p>
 <p>Point the client program to the IP address of the computer hosting <strong>merccc</strong> server and port 19005 to open the connection. The client program will be able to run the commands specified in section 5. Terminate the program to disable the port forwarding.</p>
 <h3>Windows</h3>
-<p>In Windows systems, <span class="mono">portproxy</span> can be used to forward a public port, e.g. run the following command in a command prompt with administrator privilege:</p>
+<p>In Windows systems, <span class="mono">portproxy</span> can be used to forward a public port. <span class="mono">portproxy</span> requires the IP Helper service to be running and the IPv6 option must be installed for your network adapter. Run the following command in a command prompt with administrator privilege to enable port forwarding with <span class="mono">portproxy</span>:</p>
 <p class="mono">netsh interface portproxy add v4tov4 19005 127.0.0.1 connectport=19001</p>
 <p>To disable the proxy, run the following command:</p>
 <p class="mono">netsh interface portproxy delete v4tov4 19005</p>
-<p>Note that the IP Helper service must be running and the IPv6 option must be installed for your network adapter for this feature to work. Also, you will need to allow incoming TCP connections to the port 19005 in the Advanced Firewall settings, e.g.:</p>
+<p>You will need to allow incoming TCP connections to the port 19005 in the Advanced Firewall settings, e.g.:</p>
 <p class="mono">netsh advfirewall firewall add rule name="Open Port 19005" dir=in action=allow protocol=TCP localport=19005</p>
 <p>Run the following command to delete the firewall rule:</p>
 <p class="mono">netsh advfirewall firewall delete rule name="Open Port 19005"</p> 
