@@ -1,3 +1,7 @@
+1.4.3
+- displayclient annotations now sync on data retrieve
+- displayclient config hash mismatch prompt instead of fatal
+
 1.4.2
 - fixed annotations data save/load. now teams can have criteria annotations saved into csv without having a score
 - fixed tiebreakers2 data load bug- import will fail if all teams have at least a score and tiebreaks2 line is empty
