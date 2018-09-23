@@ -1,0 +1,3 @@
+d4eb3c14ad20aaca2fb6b4b18c3f8ac7 *merccc-1.4.3.deb
+e3e3a47756c488d0f3dbeec6e683676f *merccc-1.4.3.exe
+a6849e94845e2ad65f9daf79cff70862 *merccc-1.4.3.jar
